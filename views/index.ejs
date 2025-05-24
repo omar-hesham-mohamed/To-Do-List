@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+
+    <div class="grid content">
+    
+        <h1 class="card">Today's List</h1>
+        <% tasks.forEach(function(task) { %>
+
+            <div class="checklist-item card">
+                <input type="checkbox" class="checkbox" data-index="<%= task.id %>">
+                <textarea type="text" class="text-input" id="textarea-<%= task.id %>" readonly><%= task.text %> </textarea>
+                <span><i class="fa-regular fa-pen-to-square edit" data-index="<%= task.id %>"></i></span>
+            </div>
+
+        <% }); %>
+
+        <div class="checklist-item card">
+            <textarea type="text" class="text-input new-task" placeholder="Enter new task here" autofocus></textarea>
+            <span><i class="fa-solid fa-plus add"></i></span>
+        </div>
+        <h3>Tasks: <%= tasks.length %></h3>
+
+
+
+    <script>
+
+        const editIcons = document.querySelectorAll('.edit');
+
+        editIcons.forEach(function(icon) {
+        icon.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            const textarea = document.getElementById(`textarea-${index}`);
+            textarea.readOnly = false;
+            textarea.focus();
+            });
+        });
+
+        const textareas = document.querySelectorAll('.text-input');
+
+        textareas.forEach(function(textarea) {
+            textarea.addEventListener('keydown', function(event) {
+                console.log(event.code);
+                if (event.code === 'Enter') {
+                    event.preventDefault();
+                    const index = this.id.split('-')[1];
+                    sendUpdate(index, this.value);
+                    this.readOnly = true;
+                    console.log("DOne");
+                }
+            });
+        });
+
+        function sendUpdate(index, text) {
+            fetch('/', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: index, text: text })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        const checkboxes = document.querySelectorAll('.checkbox');
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const index = this.getAttribute('data-index');
+                if (checkbox.checked) {
+                    fetch('/', {
+                    method: 'DELETE',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: index})
+                    }).then(response => {
+                        window.location.reload();
+                    });
+                }
+            });
+        });
+
+        const addButton = document.querySelector ('.add');
+
+        addButton.addEventListener('click', function() {
+            const textarea = document.querySelector('.new-task');
+            const newTask = textarea.value;
+            fetch('/', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: newTask})
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        });
+
+    </script>
+  </div>
+</html>
