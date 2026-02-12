@@ -9,12 +9,12 @@ const db = new pg.Client({
   user: "postgres",
   host: "localhost",
   database: "postgres",
-  password: "omar2776",
+  password: "password",
   port: 5432,
 });
 db.connect();
 
-// app.use(bodyParser.urlencoded({ extended: true })); use when you use forms dumbass
+// app.use(bodyParser.urlencoded({ extended: true })); use when you use forms
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
